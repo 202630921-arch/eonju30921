@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘 저녁 메뉴 추천</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px dashed #cbd5e1;
+            border-radius: 15px;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .emoji {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: bounce 0.5s ease;
+        }
+
+        .menu-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .placeholder {
+            font-size: 1.1rem;
+            color: #94a3b8;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 82, 83, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(238, 82, 83, 0.4);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>오늘 저녁 뭐 먹지?</h1>
+        <p class="subtitle">버튼을 눌러 오늘의 저녁 메뉴를 골라보세요!</p>
+
+        <div class="result-box" id="resultBox">
+            <span class="placeholder" id="placeholderText">고민 말고 버튼을 눌러보세요! 👇</span>
+            <div id="menuContent" style="display: none;">
+                <div class="emoji" id="menuEmoji"></div>
+                <div class="menu-name" id="menuName"></div>
+            </div>
+        </div>
+
+        <button onclick="recommendMenu()">저녁 메뉴 추천 받기</button>
+    </div>
+
+    <script>
+        const menus = [
+            { name: "삼겹살", emoji: "🥓" },
+            { name: "치킨", emoji: "🍗" },
+            { name: "피자", emoji: "🍕" },
+            { name: "짜장면", emoji: "🍜" },
+            { name: "초밥", emoji: "🍣" },
+            { name: "떡볶이", emoji: "🍲" },
+            { name: "김치찌개", emoji: "🥘" },
+            { name: "햄버거", emoji: "🍔" },
+            { name: "족발", emoji: "🍖" },
+            { name: "파스타", emoji: "🍝" },
+            { name: "샐러드", emoji: "🥗" },
+            { name: "국밥", emoji: "🥣" },
+            { name: "타코", emoji: "🌮" },
+            { name: "스테이크", emoji: "🥩" },
+            { name: "냉면", emoji: "🍜" }
+        ];
+
+        function recommendMenu() {
+            const placeholder = document.getElementById('placeholderText');
+            const menuContent = document.getElementById('menuContent');
+            const menuEmoji = document.getElementById('menuEmoji');
+            const menuName = document.getElementById('menuName');
+            const resultBox = document.getElementById('resultBox');
+
+            const randomIndex = Math.floor(Math.random() * menus.length);
+            const selected = menus[randomIndex];
+
+            placeholder.style.display = 'none';
+            menuContent.style.display = 'block';
+
+            menuEmoji.style.animation = 'none';
+            menuEmoji.offsetHeight;
+            menuEmoji.style.animation = 'bounce 0.5s ease';
+
+            menuEmoji.textContent = selected.emoji;
+            menuName.textContent = selected.name;
+
+            resultBox.style.background = '#fff5f5';
+            setTimeout(() => {
+                resultBox.style.background = '#f8f9fa';
+            }, 300);
+        }
+    </script>
+
+</body>
+</html>
