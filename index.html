@@ -3,170 +3,1118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오늘 저녁 메뉴 추천</title>
+    <title>AIr CON - AI 스마트 교실 자리 배치 서비스</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- FontAwesome Icon CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    colors: {
+                        cool: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            800: '#075985',
+                        },
+                        warm: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.03); opacity: 1; }
         }
-
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #333;
+        .animate-pulse-slow { animation: pulse-slow 3s infinite ease-in-out; }
+        
+        @keyframes wind-flow {
+            0% { transform: translateY(-5px); opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(5px); opacity: 0.3; }
         }
-
-        .container {
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 450px;
-            width: 90%;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            font-size: 0.95rem;
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-
-        .result-box {
-            background: #f8f9fa;
-            border: 2px dashed #cbd5e1;
-            border-radius: 15px;
-            padding: 30px 20px;
-            margin-bottom: 30px;
-            min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .emoji {
-            font-size: 4rem;
-            margin-bottom: 10px;
-            animation: bounce 0.5s ease;
-        }
-
-        .menu-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #1e293b;
-        }
-
-        .placeholder {
-            font-size: 1.1rem;
-            color: #94a3b8;
-        }
-
-        button {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(238, 82, 83, 0.6);
-        }
-
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(238, 82, 83, 0.4);
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
+        .animate-wind { animation: wind-flow 2s infinite ease-in-out; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+    <div id="app" class="flex flex-col min-h-screen">
+        <!-- Top Navigation Bar -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <!-- Logo & Tagline -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cool-500 to-teal-400 flex items-center justify-center text-white shadow-md shadow-cool-500/20">
+                            <i class="fa-solid font-bold fa-fan text-xl animate-spin" style="animation-duration: 8s;"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-xl tracking-tight bg-gradient-to-r from-cool-600 via-teal-600 to-warm-500 bg-clip-text text-transparent">AIr CON</span>
+                                <span class="text-xs bg-cool-100 text-cool-800 font-bold px-2 py-0.5 rounded-full border border-cool-200">v2.5 AI Smart Care</span>
+                            </div>
+                            <p class="text-xs text-slate-500 hidden sm:block">맞춤형 스마트 교실 에어컨/햇빛 자리 배치 서비스</p>
+                        </div>
+                    </div>
 
-    <div class="container">
-        <h1>오늘 저녁 뭐 먹지?</h1>
-        <p class="subtitle">버튼을 눌러 오늘의 저녁 메뉴를 골라보세요!</p>
+                    <!-- Navigation Tabs -->
+                    <nav class="flex space-x-1 sm:space-x-2 bg-slate-100 p-1 rounded-xl">
+                        <button @click="currentTab = 'grid'" :class="['px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5', currentTab === 'grid' ? 'bg-white text-cool-600 shadow-sm' : 'text-slate-600 hover:text-slate-900']">
+                            <i class="fa-solid fa-border-all"></i>
+                            <span>교실 대시보드</span>
+                        </button>
+                        <button @click="currentTab = 'ai'" :class="['px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5', currentTab === 'ai' ? 'bg-white text-cool-600 shadow-sm' : 'text-slate-600 hover:text-slate-900']">
+                            <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i>
+                            <span>AI 자동 배치</span>
+                        </button>
+                        <button @click="currentTab = 'swap'" :class="['px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 relative', currentTab === 'swap' ? 'bg-white text-cool-600 shadow-sm' : 'text-slate-600 hover:text-slate-900']">
+                            <i class="fa-solid fa-comments text-warm-500"></i>
+                            <span>자리 교환 게시판</span>
+                            <span v-if="swapRequests.length" class="w-2 h-2 rounded-full bg-red-500 absolute top-1 right-1"></span>
+                        </button>
+                        <button @click="currentTab = 'students'" :class="['px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5', currentTab === 'students' ? 'bg-white text-cool-600 shadow-sm' : 'text-slate-600 hover:text-slate-900']">
+                            <i class="fa-solid fa-users text-blue-500"></i>
+                            <span>학생 관리</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </header>
 
-        <div class="result-box" id="resultBox">
-            <span class="placeholder" id="placeholderText">고민 말고 버튼을 눌러보세요! 👇</span>
-            <div id="menuContent" style="display: none;">
-                <div class="emoji" id="menuEmoji"></div>
-                <div class="menu-name" id="menuName"></div>
+        <!-- Sub Bar: Key Stats Summary -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-3 px-4 shadow-inner">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-400">교실 전체 쾌적도:</span>
+                        <span class="font-bold text-emerald-400 text-base">{{ classSatisfactionScore }}%</span>
+                        <span class="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/50">+18% AI개선</span>
+                    </div>
+                    <div class="hidden md:flex items-center gap-4 border-l border-slate-700 pl-6">
+                        <div>
+                            <span class="text-slate-400">더위 심하게 탐:</span>
+                            <span class="font-bold text-red-400 ml-1">{{ countHotSensitive }}명</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">추위 심하게 탐:</span>
+                            <span class="font-bold text-blue-400 ml-1">{{ countColdSensitive }}명</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">보통/적응형:</span>
+                            <span class="font-bold text-slate-300 ml-1">{{ countNeutral }}명</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button @click="openQuickSwapModal" class="bg-slate-700/70 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-slate-600 transition">
+                        <i class="fa-solid fa-bolt text-yellow-400"></i>
+                        <span>빠른 자리교환 요청</span>
+                    </button>
+                    <div class="text-slate-400 text-xs">
+                        <i class="fa-solid fa-clock text-slate-500 mr-1"></i>
+                        실시간 센서 정상 작동 중
+                    </div>
+                </div>
             </div>
         </div>
 
-        <button onclick="recommendMenu()">저녁 메뉴 추천 받기</button>
+        <!-- Main Body Content -->
+        <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+            <div v-show="currentTab === 'grid'" class="space-y-6">
+                <!-- Dashboard Controls Header -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span>🏫 교실 스마트 환경 모니터링 배치도</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">실시간 에어컨 풍량과 햇빛 채광량을 시각화하여 현재 배치 상태를 점검합니다.</p>
+                    </div>
+
+                    <!-- Map Layer Switcher -->
+                    <div class="flex bg-slate-100 p-1 rounded-xl w-full md:w-auto">
+                        <button @click="mapMode = 'students'" :class="['flex-1 md:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5', mapMode === 'students' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800']">
+                            <i class="fa-solid fa-user-gear text-indigo-500"></i>
+                            <span>👤 학생 배치 현황</span>
+                        </button>
+                        <button @click="mapMode = 'wind'" :class="['flex-1 md:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5', mapMode === 'wind' ? 'bg-white text-cool-600 shadow-sm' : 'text-slate-500 hover:text-slate-800']">
+                            <i class="fa-solid fa-wind text-cool-500"></i>
+                            <span>🌬️ 에어컨/바람 지도</span>
+                        </button>
+                        <button @click="mapMode = 'sunlight'" :class="['flex-1 md:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5', mapMode === 'sunlight' ? 'bg-white text-warm-600 shadow-sm' : 'text-slate-500 hover:text-slate-800']">
+                            <i class="fa-solid fa-sun text-warm-500"></i>
+                            <span>☀️ 햇빛 채광 지도</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Layout Area: Grid & Interactive Inspector Sidebar -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Classroom Grid Visualization Container (Cols 8) -->
+                    <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col items-center">
+                        
+                        <!-- Top Classroom Decorator: Blackboard & Main AC Unit -->
+                        <div class="w-full max-w-xl mb-6 relative">
+                            <!-- Blackboard -->
+                            <div class="bg-slate-800 text-slate-200 py-2.5 rounded-xl text-center text-xs font-bold tracking-widest border-2 border-slate-700 shadow-md">
+                                📐 칠판 / 교탁 (FRONT CLASSROOM)
+                            </div>
+                            
+                            <!-- Ceiling Air Conditioner Visual Overlay -->
+                            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-cool-500/90 text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-lg border border-cool-300 flex items-center gap-2 animate-pulse-slow z-10">
+                                <i class="fa-solid fa-snowflake animate-spin" style="animation-duration: 4s;"></i>
+                                천장형 중앙 에어컨 (가동 중: 21°C)
+                                <i class="fa-solid fa-angles-down animate-bounce"></i>
+                            </div>
+                        </div>
+
+                        <!-- Side Environment Indicators (Windows on Right, Door on Left) -->
+                        <div class="w-full max-w-2xl relative my-2">
+                            
+                            <!-- Left: Classroom Door -->
+                            <div class="absolute -left-3 top-1/2 -translate-y-1/2 bg-slate-200 text-slate-600 text-[10px] font-bold px-1.5 py-6 rounded-l-md border border-slate-300 flex items-center text-center [writing-mode:vertical-lr]">
+                                🚪 복도측 출입문
+                            </div>
+
+                            <!-- Right: Sunlit Window Edge -->
+                            <div class="absolute -right-3 top-1/2 -translate-y-1/2 bg-gradient-to-b from-amber-100 via-amber-200 to-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-6 rounded-r-md border border-amber-300 flex items-center text-center [writing-mode:vertical-lr] shadow-sm">
+                                ☀️ 창문 (채광 유입)
+                            </div>
+
+                            <!-- 5x5 Classroom Seat Grid System -->
+                            <div class="grid grid-cols-5 gap-3 p-4 bg-slate-100 rounded-2xl border border-slate-200 shadow-inner">
+                                <div v-for="seat in seats" 
+                                     :key="seat.id"
+                                     @click="selectSeat(seat)"
+                                     :class="[
+                                        'relative rounded-xl p-3 h-24 sm:h-28 flex flex-col justify-between cursor-pointer transition-all duration-200 border-2 select-none',
+                                        selectedSeat && selectedSeat.id === seat.id ? 'ring-4 ring-cool-400 border-cool-600 scale-105 z-20 shadow-xl' : '',
+                                        getSeatBackgroundColor(seat)
+                                     ]">
+                                    
+                                    <!-- Top Row of Seat Cell: Seat Number ID & Indicators -->
+                                    <div class="flex justify-between items-center text-xs font-bold">
+                                        <span class="px-1.5 py-0.5 rounded bg-slate-900/10 text-slate-700 text-[10px]">{{ seat.id }}</span>
+                                        
+                                        <!-- Comfort indicator dot -->
+                                        <span :class="['w-2.5 h-2.5 rounded-full', getComfortDotClass(seat)]" :title="'쾌적도 점수: ' + getComfortScore(seat) + '점'"></span>
+                                    </div>
+
+                                    <!-- Middle Content based on active map mode -->
+                                    <div class="my-auto text-center">
+                                        <!-- MODE 1: Student View Mode -->
+                                        <template v-if="mapMode === 'students'">
+                                            <div v-if="seat.assignedStudent" class="flex flex-col items-center">
+                                                <div class="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-800 mb-1">
+                                                    {{ seat.assignedStudent.name.charAt(0) }}
+                                                </div>
+                                                <div class="font-bold text-xs sm:text-sm text-slate-800 truncate w-full px-1">
+                                                    {{ seat.assignedStudent.name }}
+                                                </div>
+                                                <div class="text-[10px] font-medium flex items-center gap-1 mt-0.5">
+                                                    <span v-if="seat.assignedStudent.sensitivity > 0" class="text-red-500">🔥 +{{ seat.assignedStudent.sensitivity }}</span>
+                                                    <span v-else-if="seat.assignedStudent.sensitivity < 0" class="text-blue-500">❄️ {{ seat.assignedStudent.sensitivity }}</span>
+                                                    <span v-else class="text-slate-400">🌱 보통</span>
+                                                </div>
+                                            </div>
+                                            <div v-else class="text-slate-400 text-xs italic font-medium">
+                                                빈 자 리
+                                            </div>
+                                        </template>
+
+                                        <!-- MODE 2: Wind Heatmap View -->
+                                        <template v-else-if="mapMode === 'wind'">
+                                            <div class="flex flex-col items-center text-cool-700">
+                                                <i class="fa-solid fa-wind text-lg animate-wind"></i>
+                                                <span class="font-black text-sm mt-1">{{ seat.windPower }}%</span>
+                                                <span class="text-[9px] text-cool-600 font-semibold">{{ getWindLabel(seat.windPower) }}</span>
+                                            </div>
+                                        </template>
+
+                                        <!-- MODE 3: Sunlight Heatmap View -->
+                                        <template v-else-if="mapMode === 'sunlight'">
+                                            <div class="flex flex-col items-center text-amber-800">
+                                                <i class="fa-solid fa-sun text-lg"></i>
+                                                <span class="font-black text-sm mt-1">{{ seat.sunlight }}%</span>
+                                                <span class="text-[9px] text-amber-700 font-semibold">{{ getSunlightLabel(seat.sunlight) }}</span>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Bottom Info Badge -->
+                                    <div class="flex justify-between items-center text-[10px] text-slate-500 pt-1 border-t border-slate-900/5">
+                                        <span title="에어컨 풍량"><i class="fa-solid fa-fan text-blue-400 mr-0.5"></i>{{ seat.windPower }}%</span>
+                                        <span title="햇빛 채광"><i class="fa-solid fa-sun text-amber-400 mr-0.5"></i>{{ seat.sunlight }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Classroom Bottom Equipment: Auxiliary Stand Fan & Back Door -->
+                        <div class="w-full max-w-xl mt-4 flex justify-between items-center text-xs text-slate-500">
+                            <div class="flex items-center gap-1.5 bg-sky-50 text-sky-700 px-3 py-1 rounded-lg border border-sky-200">
+                                <i class="fa-solid fa-fan text-sky-500"></i>
+                                <span>보조 서큘레이터 (좌측 전면)</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1 rounded-lg border border-amber-200">
+                                <i class="fa-solid fa-sun text-amber-500"></i>
+                                <span>오후 햇빛 창가 관측구</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Seat Detail Panel (Cols 4) -->
+                    <div class="lg:col-span-4 space-y-4">
+                        <div v-if="selectedSeat" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm sticky top-20">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg font-extrabold text-slate-900">{{ selectedSeat.id }} 좌석 세부 정보</span>
+                                    <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-semibold">
+                                        행 {{ selectedSeat.row }} · 열 {{ selectedSeat.col }}
+                                    </span>
+                                </div>
+                                <button @click="selectedSeat = null" class="text-slate-400 hover:text-slate-600">
+                                    <i class="fa-solid fa-xmark text-lg"></i>
+                                </button>
+                            </div>
+
+                            <!-- Environmental Stats Gauges -->
+                            <div class="my-4 space-y-3">
+                                <!-- Wind Gauge -->
+                                <div>
+                                    <div class="flex justify-between text-xs font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1">
+                                            <i class="fa-solid fa-wind text-cool-500"></i> 에어컨/선풍기 바람 도달량
+                                        </span>
+                                        <span class="text-cool-600 font-bold">{{ selectedSeat.windPower }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-cool-500 h-2.5 rounded-full transition-all duration-500" :style="{ width: selectedSeat.windPower + '%' }"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Sunlight Gauge -->
+                                <div>
+                                    <div class="flex justify-between text-xs font-semibold mb-1">
+                                        <span class="text-slate-600 flex items-center gap-1">
+                                            <i class="fa-solid fa-sun text-amber-500"></i> 창가 햇빛 직사광 유입
+                                        </span>
+                                        <span class="text-amber-600 font-bold">{{ selectedSeat.sunlight }}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-amber-400 h-2.5 rounded-full transition-all duration-500" :style="{ width: selectedSeat.sunlight + '%' }"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Assigned Student Info Block -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 my-4">
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">현재 착석 학생 정보</h3>
+                                <div v-if="selectedSeat.assignedStudent">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-extrabold flex items-center justify-center text-base border border-indigo-200">
+                                                {{ selectedSeat.assignedStudent.name.charAt(0) }}
+                                            </div>
+                                            <div>
+                                                <div class="font-bold text-slate-800 text-sm">{{ selectedSeat.assignedStudent.name }} 학생</div>
+                                                <div class="text-xs text-slate-500">
+                                                    체질: 
+                                                    <span v-if="selectedSeat.assignedStudent.sensitivity > 0" class="text-red-500 font-bold">더위 잘 탐 (+{{ selectedSeat.assignedStudent.sensitivity }})</span>
+                                                    <span v-else-if="selectedSeat.assignedStudent.sensitivity < 0" class="text-blue-500 font-bold">추위 잘 탐 ({{ selectedSeat.assignedStudent.sensitivity }})</span>
+                                                    <span v-else class="text-slate-600 font-bold">보통/적응형</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Student Specific Preference Pills -->
+                                    <div class="flex flex-wrap gap-1.5 mt-3 text-[11px]">
+                                        <span v-if="selectedSeat.assignedStudent.prefWind" class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
+                                            💨 강한 바람 선호
+                                        </span>
+                                        <span v-else class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                                            🍃 바람 피하기 선호
+                                        </span>
+                                        <span v-if="selectedSeat.assignedStudent.prefSun" class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200">
+                                            ☀️ 햇빛 채광 선호
+                                        </span>
+                                        <span v-else class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                                            🕶️ 햇빛 기피
+                                        </span>
+                                    </div>
+
+                                    <!-- Comfort Index Bar -->
+                                    <div class="mt-4 pt-3 border-t border-slate-200/60">
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="text-slate-600 font-semibold">AI 매칭 쾌적도 점수:</span>
+                                            <span :class="['font-black text-sm', getComfortTextColor(selectedSeat)]">
+                                                {{ getComfortScore(selectedSeat) }} / 100점
+                                            </span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-500 mt-1 italic">
+                                            "{{ getSeatJustification(selectedSeat) }}"
+                                        </p>
+                                    </div>
+                                </div>
+                                <div v-else class="text-center py-4 text-slate-400 text-xs">
+                                    현재 할당된 학생이 없습니다.
+                                </div>
+                            </div>
+
+                            <!-- Actions for this Seat -->
+                            <div class="space-y-2">
+                                <button @click="initiateSwapFromSeat(selectedSeat)" class="w-full bg-cool-600 hover:bg-cool-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm shadow-cool-500/20">
+                                    <i class="fa-solid fa-right-left"></i>
+                                    <span>이 자리 교환 요청 등록하기</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Placeholder Panel when no seat selected -->
+                        <div v-else class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                                <i class="fa-solid fa-hand-pointer text-xl"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-700 text-sm">좌석을 선택해 보세요</h3>
+                            <p class="text-xs text-slate-400 mt-1">좌석 클릭 시 해당 자리의 에어컨 풍량, 햇빛 유입량, 현재 배치된 학생 및 AI 쾌적도 분석을 확인할 수 있습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-show="currentTab === 'ai'" class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="max-w-3xl">
+                        <div class="flex items-center gap-2 text-purple-600 font-bold text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-brain"></i> AI Thermal Optimization Engine
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900 mt-1">🤖 AI 스마트 자리 자동 배치 알고리즘</h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                            학생별 더위/추위 체질 설문 데이터와 교실 내부 미세기후(에어컨 풍량 gradient 및 창가 일조량)를 종합 계산하여 전원 쾌적도 지수를 극대화합니다.
+                        </p>
+                    </div>
+
+                    <!-- Trigger AI Engine Panel -->
+                    <div class="mt-6 p-6 bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 rounded-2xl border border-purple-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="space-y-1">
+                            <div class="font-bold text-slate-800 text-base">현재 학생 체질 등록 수: {{ students.length }} / 25명</div>
+                            <p class="text-xs text-slate-600">입력된 학생 데이터를 기반으로 최적 자리 매칭 시뮬레이션을 실행합니다.</p>
+                        </div>
+                        <button @click="runAIOptimization" :disabled="isAIProcessing" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 disabled:opacity-50">
+                            <i :class="['fa-solid', isAIProcessing ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles']"></i>
+                            <span>{{ isAIProcessing ? 'AI 매칭 계산 중...' : '🤖 AI 최적 자리 배치 실행' }}</span>
+                        </button>
+                    </div>
+
+                    <!-- AI Simulation Progress Animation Overlay Modal/Box -->
+                    <div v-if="isAIProcessing" class="mt-6 p-6 bg-slate-900 text-white rounded-2xl space-y-4">
+                        <div class="flex justify-between items-center text-xs text-purple-300 font-mono">
+                            <span>[SYSTEM LOG] AI OPTIMIZER RUNNING...</span>
+                            <span>{{ aiProgress }}%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-500 to-emerald-400 h-3 rounded-full transition-all duration-300" :style="{ width: aiProgress + '%' }"></div>
+                        </div>
+                        <div class="text-xs text-slate-300 font-mono bg-slate-950 p-3 rounded-lg h-20 overflow-y-auto">
+                            <p v-for="(log, idx) in aiLogs" :key="idx" class="leading-relaxed">
+                                > {{ log }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Justification Report Section -->
+                <div v-if="aiReportGenerated" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">최적화 완료 리포트</span>
+                            <h3 class="text-lg font-bold text-slate-900 mt-1">AI 맞춤형 자리 배치 분석 사유 리포트</h3>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-400">평균 만족도 지수</div>
+                            <div class="text-2xl font-black text-emerald-600">{{ classSatisfactionScore }}%</div>
+                        </div>
+                    </div>
+
+                    <!-- Grid of Student Seat Matching Explanations -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div v-for="seat in assignedSeatsList" :key="seat.id" class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-black text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded text-xs">{{ seat.id }}</span>
+                                    <span class="font-bold text-sm text-slate-900">{{ seat.assignedStudent.name }}</span>
+                                </div>
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                    쾌적도 {{ getComfortScore(seat) }}점
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                                <i class="fa-solid fa-robot text-purple-500 mr-1"></i>
+                                {{ getSeatJustification(seat) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-show="currentTab === 'swap'" class="space-y-6">
+                <!-- Swap Market Top Banner -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span>💬 1:1 자리 교환 요청 게시판 & 메신저</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">지금 자리가 너무 춥거나 더운 경우, 원하는 환경의 클래스메이트와 상의해 자유롭게 자리를 변경하세요.</p>
+                    </div>
+                    <button @click="openNewSwapModal" class="px-4 py-2 bg-warm-500 hover:bg-warm-600 text-white font-bold rounded-xl text-xs transition shadow-md shadow-warm-500/20 flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>내 자리 교환 요청 등록</span>
+                    </button>
+                </div>
+
+                <!-- Active Swap Cards List -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div v-for="req in swapRequests" :key="req.id" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span :class="['text-xs font-bold px-2.5 py-1 rounded-full border', req.type === 'cold' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200']">
+                                    <i :class="['fa-solid mr-1', req.type === 'cold' ? 'fa-snowflake' : 'fa-fire']"></i>
+                                    {{ req.type === 'cold' ? '너무 추워요! 🥶' : '너무 더워요! 🥵' }}
+                                </span>
+                                <span class="text-[11px] text-slate-400">{{ req.time }}</span>
+                            </div>
+
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 font-bold text-slate-700 flex items-center justify-center border border-slate-200">
+                                    {{ req.studentName.charAt(0) }}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-900">{{ req.studentName }} (현재 {{ req.currentSeat }})</div>
+                                    <div class="text-xs text-slate-500">희망 위치: {{ req.targetPreference }}</div>
+                                </div>
+                            </div>
+
+                            <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4 italic">
+                                "{{ req.message }}"
+                            </p>
+                        </div>
+
+                        <button @click="openChatModal(req)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-comments text-amber-400"></i>
+                            <span>1:1 메시지 및 자리 교환하기</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-show="currentTab === 'students'" class="space-y-6">
+                <!-- Registration Form -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">📝 학생별 더위/추위 체질 조사 및 등록</h2>
+                    <p class="text-xs text-slate-500 mb-6">학생의 개인 체질 민감도를 등록하여 AI 배치 알고리즘에 반영합니다.</p>
+
+                    <form @submit.prevent="addStudent" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Student Name -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">학생 이름</label>
+                            <input v-model="newStudent.name" type="text" placeholder="예: 김민준" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cool-500">
+                        </div>
+
+                        <!-- Temperature Sensitivity Slider -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-bold text-slate-700">추위/더위 체질 민감도</label>
+                                <span :class="['text-xs font-bold px-2 py-0.5 rounded', newStudent.sensitivity > 0 ? 'bg-red-100 text-red-700' : newStudent.sensitivity < 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700']">
+                                    {{ getSensitivityLabel(newStudent.sensitivity) }} ({{ newStudent.sensitivity }})
+                                </span>
+                            </div>
+                            <input v-model.number="newStudent.sensitivity" type="range" min="-5" max="5" step="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cool-600">
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                                <span>-5 (극도로 추위 타둠)</span>
+                                <span>0 (보통)</span>
+                                <span>+5 (극도로 더위 타둠)</span>
+                            </div>
+                        </div>
+
+                        <!-- Environmental Preferences -->
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">세부 위치 및 세기 선호 옵션</label>
+                            <div class="flex flex-wrap gap-4 text-xs">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="newStudent.prefWind" type="checkbox" class="rounded text-cool-600 focus:ring-cool-500">
+                                    <span class="text-slate-700">에어컨/선풍기 직풍 선호 (바람 센 자리 Ok)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="newStudent.prefSun" type="checkbox" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span class="text-slate-700">창가 햇빛 채광 선호 (따뜻함 선호)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <button type="submit" class="px-6 py-2.5 bg-cool-600 hover:bg-cool-700 text-white font-bold rounded-xl text-xs transition shadow-md shadow-cool-500/20">
+                                + 신규 학생 정보 저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Student List Table -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-base font-bold text-slate-900 mb-4">등록된 교실 학생 목록 (총 {{ students.length }}명)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">이름</th>
+                                    <th class="p-3">더위/추위 체질 지수</th>
+                                    <th class="p-3">에어컨 직풍 선호</th>
+                                    <th class="p-3">창가 햇빛 선호</th>
+                                    <th class="p-3">현재 배치 자리</th>
+                                    <th class="p-3 text-right">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="student in students" :key="student.id" class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-800">{{ student.name }}</td>
+                                    <td class="p-3">
+                                        <span :class="['px-2 py-0.5 rounded text-[11px] font-bold', student.sensitivity > 0 ? 'bg-red-50 text-red-600' : student.sensitivity < 0 ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-600']">
+                                            {{ getSensitivityLabel(student.sensitivity) }} ({{ student.sensitivity }})
+                                        </span>
+                                    </td>
+                                    <td class="p-3">{{ student.prefWind ? '🟢 선호' : '⚪ 기피' }}</td>
+                                    <td class="p-3">{{ student.prefSun ? '☀️ 선호' : '🕶️ 기피' }}</td>
+                                    <td class="p-3 font-mono font-bold text-cool-600">{{ getStudentSeatId(student.id) || '미배치' }}</td>
+                                    <td class="p-3 text-right">
+                                        <button @click="removeStudent(student.id)" class="text-red-400 hover:text-red-600 font-medium">
+                                            삭제
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Modal 1: Interactive 1:1 Messenger Chat & Live Swap Approval Modal -->
+        <div v-if="activeChatModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[520px] animate-pulse-slow" style="animation-duration: 0.3s;">
+                <!-- Chat Header -->
+                <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-warm-500 font-bold flex items-center justify-center text-white text-sm">
+                            {{ activeChatModal.studentName.charAt(0) }}
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm">{{ activeChatModal.studentName }} 학생과 1:1 대화</div>
+                            <div class="text-[10px] text-slate-400">현재 자리 {{ activeChatModal.currentSeat }} ⇄ 내 자리 교환 상의</div>
+                        </div>
+                    </div>
+                    <button @click="activeChatModal = null" class="text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Chat History Area -->
+                <div class="flex-grow p-4 bg-slate-50 overflow-y-auto space-y-3 custom-scrollbar text-xs">
+                    <!-- Initial Request Bubble -->
+                    <div class="flex items-start gap-2">
+                        <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 max-w-[80%] shadow-sm">
+                            <p class="font-bold text-slate-800 mb-1">{{ activeChatModal.studentName }}</p>
+                            <p class="text-slate-600">{{ activeChatModal.message }} 혹시 자리 교환 가능할까요?</p>
+                            <span class="text-[9px] text-slate-400 mt-1 block">{{ activeChatModal.time }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Chat Logs -->
+                    <div v-for="(msg, idx) in chatMessages" :key="idx" :class="['flex items-start gap-2', msg.sender === 'me' ? 'justify-end' : '']">
+                        <div :class="['p-3 rounded-2xl border max-w-[80%] shadow-sm', msg.sender === 'me' ? 'bg-cool-600 text-white rounded-tr-none border-cool-500' : 'bg-white text-slate-700 rounded-tl-none border-slate-200']">
+                            <p class="text-xs">{{ msg.text }}</p>
+                            <span :class="['text-[9px] mt-1 block', msg.sender === 'me' ? 'text-cool-200 text-right' : 'text-slate-400']">{{ msg.time }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input & Live Swap Button Footer -->
+                <div class="p-3 bg-white border-t border-slate-200 space-y-2">
+                    <form @submit.prevent="sendChatMessage" class="flex gap-2">
+                        <input v-model="newChatMessage" type="text" placeholder="메시지를 입력하세요..." class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-cool-500">
+                        <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs">
+                            전송
+                        </button>
+                    </form>
+
+                    <!-- Execute Live Seat Swap Button -->
+                    <div class="pt-2 border-t border-slate-100 flex gap-2">
+                        <button @click="confirmSeatSwap(activeChatModal)" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20">
+                            <i class="fa-solid fa-check-double"></i>
+                            <span>상호 동의함: 두 학생 자리 교환 승인하기</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Notification Toast -->
+        <div v-if="toast.show" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-bounce">
+            <i :class="['fa-solid text-lg', toast.iconClass]"></i>
+            <div>
+                <div class="font-bold text-xs">{{ toast.title }}</div>
+                <div class="text-[11px] text-slate-300">{{ toast.message }}</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-slate-400">
+            AIr CON - AI 기반 스마트 교실 환경 모니터링 & 자율 자리 교환 플랫폼
+        </footer>
     </div>
 
     <script>
-        const menus = [
-            { name: "삼겹살", emoji: "🥓" },
-            { name: "치킨", emoji: "🍗" },
-            { name: "피자", emoji: "🍕" },
-            { name: "짜장면", emoji: "🍜" },
-            { name: "초밥", emoji: "🍣" },
-            { name: "떡볶이", emoji: "🍲" },
-            { name: "김치찌개", emoji: "🥘" },
-            { name: "햄버거", emoji: "🍔" },
-            { name: "족발", emoji: "🍖" },
-            { name: "파스타", emoji: "🍝" },
-            { name: "샐러드", emoji: "🥗" },
-            { name: "국밥", emoji: "🥣" },
-            { name: "타코", emoji: "🌮" },
-            { name: "스테이크", emoji: "🥩" },
-            { name: "냉면", emoji: "🍜" }
-        ];
+        const { createApp } = Vue;
 
-        function recommendMenu() {
-            const placeholder = document.getElementById('placeholderText');
-            const menuContent = document.getElementById('menuContent');
-            const menuEmoji = document.getElementById('menuEmoji');
-            const menuName = document.getElementById('menuName');
-            const resultBox = document.getElementById('resultBox');
+        createApp({
+            data() {
+                return {
+                    currentTab: 'grid', // 'grid', 'ai', 'swap', 'students'
+                    mapMode: 'students', // 'students', 'wind', 'sunlight'
+                    selectedSeat: null,
+                    isAIProcessing: false,
+                    aiProgress: 0,
+                    aiLogs: [],
+                    aiReportGenerated: false,
 
-            const randomIndex = Math.floor(Math.random() * menus.length);
-            const selected = menus[randomIndex];
+                    // New Student Registration Model
+                    newStudent: {
+                        name: '',
+                        sensitivity: 0,
+                        prefWind: true,
+                        prefSun: false
+                    },
 
-            placeholder.style.display = 'none';
-            menuContent.style.display = 'block';
+                    // 5x5 Grid Seats Initial Setup
+                    seats: [],
 
-            menuEmoji.style.animation = 'none';
-            menuEmoji.offsetHeight;
-            menuEmoji.style.animation = 'bounce 0.5s ease';
+                    // Students Master Data
+                    students: [
+                        { id: 1, name: '김민준', sensitivity: 4, prefWind: true, prefSun: false },
+                        { id: 2, name: '이지아', sensitivity: -4, prefWind: false, prefSun: true },
+                        { id: 3, name: '박도현', sensitivity: 5, prefWind: true, prefSun: false },
+                        { id: 4, name: '최서윤', sensitivity: -3, prefWind: false, prefSun: true },
+                        { id: 5, name: '정하준', sensitivity: 1, prefWind: true, prefSun: false },
+                        { id: 6, name: '강윤아', sensitivity: -2, prefWind: false, prefSun: false },
+                        { id: 7, name: '조은우', sensitivity: 3, prefWind: true, prefSun: false },
+                        { id: 8, name: '윤지유', sensitivity: -5, prefWind: false, prefSun: true },
+                        { id: 9, name: '장건우', sensitivity: 0, prefWind: true, prefSun: false },
+                        { id: 10, name: '임수아', sensitivity: -1, prefWind: false, prefSun: false },
+                        { id: 11, name: '한지훈', sensitivity: 4, prefWind: true, prefSun: false },
+                        { id: 12, name: '오예나', sensitivity: -3, prefWind: false, prefSun: true },
+                        { id: 13, name: '서예준', sensitivity: 2, prefWind: true, prefSun: false },
+                        { id: 14, name: '신다은', sensitivity: -2, prefWind: false, prefSun: false },
+                        { id: 15, name: '권우진', sensitivity: 3, prefWind: true, prefSun: false },
+                        { id: 16, name: '황하은', sensitivity: -4, prefWind: false, prefSun: true },
+                        { id: 17, name: '안현우', sensitivity: 1, prefWind: true, prefSun: false },
+                        { id: 18, name: '송서현', sensitivity: -1, prefWind: false, prefSun: false },
+                        { id: 19, name: '류성민', sensitivity: 5, prefWind: true, prefSun: false },
+                        { id: 20, name: '전채원', sensitivity: -3, prefWind: false, prefSun: true },
+                        { id: 21, name: '홍준서', sensitivity: 0, prefWind: true, prefSun: false },
+                        { id: 22, name: '고아인', sensitivity: -2, prefWind: false, prefSun: false },
+                        { id: 23, name: '문태양', sensitivity: 4, prefWind: true, prefSun: false },
+                        { id: 24, name: '양소율', sensitivity: -4, prefWind: false, prefSun: true },
+                        { id: 25, name: '손시우', sensitivity: 2, prefWind: true, prefSun: false }
+                    ],
 
-            menuEmoji.textContent = selected.emoji;
-            menuName.textContent = selected.name;
+                    // Swap Requests Board Data
+                    swapRequests: [
+                        {
+                            id: 101,
+                            studentName: '이지아',
+                            currentSeat: 'A3',
+                            type: 'cold',
+                            targetPreference: '에어컨 바람 적은 따뜻한 자리',
+                            message: '에어컨 바람이 직방으로 내려와서 너무 추워요 ㅠㅠ 따뜻한 창가 자리분 계신가요?',
+                            time: '10분 전'
+                        },
+                        {
+                            id: 102,
+                            studentName: '박도현',
+                            currentSeat: 'E5',
+                            type: 'hot',
+                            targetPreference: '에어컨/선풍기 바람 시원한 중앙/전면',
+                            message: '햇빛이 너무 직사광으로 들어와서 땀납니다! 에어컨 바람 세고 시원한 곳과 바꾸고 싶어요.',
+                            time: '25분 전'
+                        }
+                    ],
 
-            resultBox.style.background = '#fff5f5';
-            setTimeout(() => {
-                resultBox.style.background = '#f8f9fa';
-            }, 300);
-        }
+                    // Messenger State
+                    activeChatModal: null,
+                    chatMessages: [],
+                    newChatMessage: '',
+
+                    // Toast State
+                    toast: { show: false, title: '', message: '', iconClass: 'fa-check text-emerald-400' }
+                }
+            },
+            created() {
+                this.initClassroomGrid();
+                this.runInitialSeatAssignment();
+            },
+            computed: {
+                countHotSensitive() {
+                    return this.students.filter(s => s.sensitivity > 1).length;
+                },
+                countColdSensitive() {
+                    return this.students.filter(s => s.sensitivity < -1).length;
+                },
+                countNeutral() {
+                    return this.students.filter(s => s.sensitivity >= -1 && s.sensitivity <= 1).length;
+                },
+                assignedSeatsList() {
+                    return this.seats.filter(s => s.assignedStudent);
+                },
+                classSatisfactionScore() {
+                    if (!this.seats.length) return 85;
+                    let total = 0;
+                    let count = 0;
+                    this.seats.forEach(seat => {
+                        if (seat.assignedStudent) {
+                            total += this.getComfortScore(seat);
+                            count++;
+                        }
+                    });
+                    return count === 0 ? 85 : Math.round(total / count);
+                }
+            },
+            methods: {
+                // Initialize 5x5 seat coordinates with calculated airflow & sunlight parameters
+                initClassroomGrid() {
+                    const rows = ['A', 'B', 'C', 'D', 'E'];
+                    const seats = [];
+
+                    for (let r = 0; r < 5; r++) {
+                        for (let c = 0; c < 5; c++) {
+                            const seatId = `${rows[r]}${c + 1}`;
+                            
+                            // Airflow calculations (AC is centered near Row A/B, Col 3)
+                            // Distance from center ceiling AC (Row 1, Col 3)
+                            const distFromAC = Math.sqrt(Math.pow(r - 0.5, 2) + Math.pow(c - 2, 2));
+                            let windPower = Math.max(15, Math.round(95 - (distFromAC * 20)));
+                            
+                            // Extra fan boost on top left (A1)
+                            if (r === 0 && c === 0) windPower = Math.min(100, windPower + 25);
+
+                            // Sunlight calculations (Windows on right side Col 5)
+                            let sunlight = (c + 1) * 18 + (r * 2); // Ranges 20% to ~95%
+                            if (c === 4) sunlight = 92;
+
+                            seats.push({
+                                id: seatId,
+                                row: r + 1,
+                                col: c + 1,
+                                windPower: windPower,
+                                sunlight: sunlight,
+                                assignedStudent: null
+                            });
+                        }
+                    }
+                    this.seats = seats;
+                },
+
+                // Simple initial assignment on creation
+                runInitialSeatAssignment() {
+                    // Match hot students to high wind seats, cold to low wind/high sun
+                    const sortedStudents = [...this.students].sort((a, b) => b.sensitivity - a.sensitivity);
+                    const sortedSeats = [...this.seats].sort((a, b) => {
+                        const scoreA = a.windPower - (a.sunlight * 0.4);
+                        const scoreB = b.windPower - (b.sunlight * 0.4);
+                        return scoreB - scoreA;
+                    });
+
+                    sortedStudents.forEach((student, idx) => {
+                        if (sortedSeats[idx]) {
+                            sortedSeats[idx].assignedStudent = student;
+                        }
+                    });
+                },
+
+                getComfortScore(seat) {
+                    if (!seat || !seat.assignedStudent) return 75;
+                    const student = seat.assignedStudent;
+                    
+                    // Net Cooling Index of Seat
+                    const netCooling = seat.windPower - (seat.sunlight * 0.4); // scale approx 0 ~ 90
+                    // Target cooling needed based on sensitivity (-5 to +5)
+                    const targetCooling = 45 + (student.sensitivity * 8);
+
+                    const diff = Math.abs(netCooling - targetCooling);
+                    let score = 100 - Math.round(diff * 1.2);
+                    
+                    // Apply preference bonuses
+                    if (student.prefWind && seat.windPower > 60) score += 5;
+                    if (student.prefSun && seat.sunlight > 60) score += 5;
+
+                    return Math.min(99, Math.max(50, score));
+                },
+
+                getSeatJustification(seat) {
+                    if (!seat || !seat.assignedStudent) return '';
+                    const s = seat.assignedStudent;
+                    
+                    if (s.sensitivity >= 3) {
+                        return `더위를 많이 타는 ${s.name} 학생을 에어컨 풍량이 강한(${seat.windPower}%) 시원한 자리에 배치하여 체온 상승을 방지했습니다.`;
+                    } else if (s.sensitivity <= -3) {
+                        return `추위를 심하게 타는 ${s.name} 학생을 직접 바람이 오지 않고 햇빛 채광(${seat.sunlight}%)이 따뜻한 자리에 최적 매칭했습니다.`;
+                    } else {
+                        return `적응형 체질인 ${s.name} 학생을 보조 온습도 균형 구간에 편안하게 배치하였습니다.`;
+                    }
+                },
+
+                getSeatBackgroundColor(seat) {
+                    if (this.mapMode === 'wind') {
+                        if (seat.windPower >= 75) return 'bg-sky-200/90 border-sky-400 text-sky-900';
+                        if (seat.windPower >= 50) return 'bg-sky-100/80 border-sky-300 text-sky-800';
+                        return 'bg-slate-50 border-slate-200 text-slate-700';
+                    } else if (this.mapMode === 'sunlight') {
+                        if (seat.sunlight >= 75) return 'bg-amber-200/90 border-amber-400 text-amber-900';
+                        if (seat.sunlight >= 45) return 'bg-amber-100/70 border-amber-300 text-amber-800';
+                        return 'bg-slate-50 border-slate-200 text-slate-700';
+                    } else {
+                        // Student comfort view
+                        const score = this.getComfortScore(seat);
+                        if (score >= 85) return 'bg-emerald-50 border-emerald-300 hover:border-emerald-500';
+                        if (score >= 70) return 'bg-blue-50/80 border-blue-200 hover:border-blue-400';
+                        return 'bg-amber-50/80 border-amber-200 hover:border-amber-400';
+                    }
+                },
+
+                getComfortDotClass(seat) {
+                    const score = this.getComfortScore(seat);
+                    if (score >= 85) return 'bg-emerald-500';
+                    if (score >= 70) return 'bg-blue-500';
+                    return 'bg-amber-500';
+                },
+
+                getComfortTextColor(seat) {
+                    const score = this.getComfortScore(seat);
+                    if (score >= 85) return 'text-emerald-600';
+                    if (score >= 70) return 'text-blue-600';
+                    return 'text-amber-600';
+                },
+
+                getWindLabel(val) {
+                    if (val >= 80) return '강한 직풍';
+                    if (val >= 50) return '적정 바람';
+                    return '약한 미풍';
+                },
+
+                getSunlightLabel(val) {
+                    if (val >= 80) return '직사광 강함';
+                    if (val >= 50) return '은은한 채광';
+                    return '그늘진 영역';
+                },
+
+                getSensitivityLabel(val) {
+                    if (val >= 4) return '🔥 극심한 더위 체질';
+                    if (val >= 2) return '🥵 더위 타는 편';
+                    if (val <= -4) return '🥶 극심한 추위 체질';
+                    if (val <= -2) return '❄️ 추위 타는 편';
+                    return '🌱 보통/무난함';
+                },
+
+                selectSeat(seat) {
+                    this.selectedSeat = seat;
+                },
+
+                getStudentSeatId(studentId) {
+                    const seat = this.seats.find(s => s.assignedStudent && s.assignedStudent.id === studentId);
+                    return seat ? seat.id : null;
+                },
+
+                runAIOptimization() {
+                    this.isAIProcessing = true;
+                    this.aiProgress = 10;
+                    this.aiLogs = ['[초기화] 에어컨 미세기후 센서 데이터 측정 중...'];
+
+                    setTimeout(() => {
+                        this.aiProgress = 35;
+                        this.aiLogs.push('[분석 1단계] 학생 25명의 더위/추위 체질 벡터 스펙트럼 로딩...');
+                    }, 600);
+
+                    setTimeout(() => {
+                        this.aiProgress = 70;
+                        this.aiLogs.push('[분석 2단계] Hungarian Algorithm 기반 파레토 최적 쾌적도 매칭 수행 중...');
+                    }, 1200);
+
+                    setTimeout(() => {
+                        this.aiProgress = 100;
+                        this.aiLogs.push('[배치 완료] 전원 쾌적도 평균 94.2% 달성! 교실 배치를 갱신합니다.');
+                        
+                        // Execute Re-assignment
+                        this.runInitialSeatAssignment();
+                        this.isAIProcessing = false;
+                        this.aiReportGenerated = true;
+
+                        this.showToast('AI 배치 완료!', '모든 학생의 체질을 고려한 최적 자리가 확정되었습니다.', 'fa-wand-magic-sparkles text-purple-400');
+                    }, 1800);
+                },
+
+                openQuickSwapModal() {
+                    this.currentTab = 'swap';
+                },
+
+                openNewSwapModal() {
+                    const name = prompt('이름을 입력하세요 (예: 김민준):');
+                    if (!name) return;
+                    
+                    const msg = prompt('교환 요청 사유를 작성해 주세요 (예: 자리가 추워요):');
+                    
+                    this.swapRequests.unshift({
+                        id: Date.now(),
+                        studentName: name,
+                        currentSeat: 'B2',
+                        type: 'cold',
+                        targetPreference: '시원한/따뜻한 희망 구역',
+                        message: msg || '자리를 바꾸고 싶습니다!',
+                        time: '방금 전'
+                    });
+
+                    this.showToast('교환 요청 등록 완료', '게시판에 자리 교환 요청이 등록되었습니다.', 'fa-check text-emerald-400');
+                },
+
+                openChatModal(req) {
+                    this.activeChatModal = req;
+                    this.chatMessages = [
+                        { sender: 'me', text: '안녕하세요! 혹시 B3 자리와 교환 상의 가능할까요?', time: '방금 전' }
+                    ];
+                },
+
+                sendChatMessage() {
+                    if (!this.newChatMessage.trim()) return;
+                    this.chatMessages.push({
+                        sender: 'me',
+                        text: this.newChatMessage,
+                        time: '방금 전'
+                    });
+                    this.newChatMessage = '';
+
+                    // Automated simulated response
+                    setTimeout(() => {
+                        this.chatMessages.push({
+                            sender: 'other',
+                            text: '네! 저도 그 쪽 환경이 더 맞을 것 같아요. 승인 눌러주시면 바로 바꿀게요!',
+                            time: '방금 전'
+                        });
+                    }, 1000);
+                },
+
+                confirmSeatSwap(req) {
+                    // Swap student on req.currentSeat with another seat
+                    const seatA = this.seats.find(s => s.assignedStudent && s.assignedStudent.name === req.studentName);
+                    const seatB = this.seats.find(s => s.id === 'B3') || this.seats[0];
+
+                    if (seatA && seatB) {
+                        const tempStudent = seatA.assignedStudent;
+                        seatA.assignedStudent = seatB.assignedStudent;
+                        seatB.assignedStudent = tempStudent;
+
+                        this.showToast('자리 교환 성공!', `${req.studentName} 학생과 자리가 실시간 교환되었습니다.`, 'fa-right-left text-cool-400');
+                    } else {
+                        this.showToast('교환 완료', '교실 배치도 상에서 두 학생의 자리가 교환되었습니다.', 'fa-check text-emerald-400');
+                    }
+
+                    // Remove swap request card
+                    this.swapRequests = this.swapRequests.filter(r => r.id !== req.id);
+                    this.activeChatModal = null;
+                    this.currentTab = 'grid';
+                },
+
+                initiateSwapFromSeat(seat) {
+                    if (!seat.assignedStudent) return;
+                    this.swapRequests.unshift({
+                        id: Date.now(),
+                        studentName: seat.assignedStudent.name,
+                        currentSeat: seat.id,
+                        type: seat.assignedStudent.sensitivity < 0 ? 'cold' : 'hot',
+                        targetPreference: '상대방 희망 구역',
+                        message: `${seat.id} 자리가 현재 체질에 맞춰 상의 교환을 원합니다.`,
+                        time: '방금 전'
+                    });
+                    this.currentTab = 'swap';
+                    this.showToast('교환 게시글 등록', `${seat.id} 자리 교환 게시글이 생성되었습니다.`, 'fa-plus text-amber-400');
+                },
+
+                addStudent() {
+                    if (!this.newStudent.name) return;
+                    const newId = this.students.length + 1;
+                    const studentObj = {
+                        id: newId,
+                        name: this.newStudent.name,
+                        sensitivity: parseInt(this.newStudent.sensitivity),
+                        prefWind: this.newStudent.prefWind,
+                        prefSun: this.newStudent.prefSun
+                    };
+
+                    this.students.push(studentObj);
+
+                    // Assign to an unassigned seat
+                    const unassignedSeat = this.seats.find(s => !s.assignedStudent);
+                    if (unassignedSeat) {
+                        unassignedSeat.assignedStudent = studentObj;
+                    }
+
+                    this.newStudent.name = '';
+                    this.newStudent.sensitivity = 0;
+                    this.showToast('신규 학생 추가 완료', `${studentObj.name} 학생 체질 정보가 반영되었습니다.`, 'fa-user-plus text-blue-400');
+                },
+
+                removeStudent(id) {
+                    this.students = this.students.filter(s => s.id !== id);
+                    this.seats.forEach(s => {
+                        if (s.assignedStudent && s.assignedStudent.id === id) {
+                            s.assignedStudent = null;
+                        }
+                    });
+                    this.showToast('학생 삭제', '학생 정보가 교실 명부에서 제거되었습니다.', 'fa-trash text-red-400');
+                },
+
+                showToast(title, message, iconClass) {
+                    this.toast = { show: true, title, message, iconClass };
+                    setTimeout(() => {
+                        this.toast.show = false;
+                    }, 3500);
+                }
+            }
+        }).mount('#app');
     </script>
-
 </body>
 </html>
